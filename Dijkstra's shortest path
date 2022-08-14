@@ -1,0 +1,59 @@
+#include<limits.h>
+#include<unordered_map>
+#include<list>
+#include<set>
+vector<int> dijkstra(vector<vector<int>> &vec, int vertices, int edges, int source) {
+    //create adjency list
+    unordered_map<int, list<pair<int,int>>> adj;
+    for(int i = 0; i < edges; i++)
+    {
+        int u = vec[i][0];
+        int v = vec[i][1];
+        int weight = vec[i][2];
+        
+        adj[u].push_back(make_pair(v,weight));
+        adj[v].push_back(make_pair(u,weight));
+    }
+    //creation of array with INT_MAX
+    vector<int> distance(vertices);
+    for(int i = 0; i < vertices; i++)
+    {
+        distance[i] = INT_MAX;
+    }
+    //creation of set on basis of (distance,node)
+    set<pair<int,int>> st;
+   //initialise source distance with 0
+    distance[source] = 0;
+    st.insert(make_pair(0,source));
+    
+    while(! st.empty())
+    {
+        //fetch top record
+        auto top = *(st.begin());
+        
+        int nodeDistance = top.first;
+        int topNode = top.second;
+        //remove the top record
+        st.erase(st.begin());
+        
+        //neighbours traversing
+        
+        for(auto neighbour : adj[topNode])
+        {
+            if(nodeDistance + neighbour.second < distance[neighbour.first])
+            {
+                auto record = st.find(make_pair(distance[neighbour.first],neighbour.first));
+                //if record found then erase it.
+                if(record != st.end())
+                {
+                    st.erase(record);
+                }
+             //distance update
+                distance[neighbour.first] = nodeDistance + neighbour.second;
+                //record push in set
+                st.insert(make_pair(distance[neighbour.first], neighbour.first));
+            }
+        }
+    }
+    return distance;
+}
